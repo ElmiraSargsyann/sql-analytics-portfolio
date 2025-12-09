@@ -16,17 +16,24 @@ services:
       timeout: 5s
       retries: 10
     volumes:
+      # Persist database data (keep your bind mount; a named volume also works)
       - ./postgres_data:/var/lib/postgresql/data
+      # Run these once on first initialization
       - ./init:/docker-entrypoint-initdb.d
+      # Make CSVs available to COPY during init (read-only)
+      - ./data:/docker-entrypoint-initdb.d/data:ro
 
   pgadmin:
     container_name: pgadmin_aca
     image: dpage/pgadmin4
     restart: always
+    env_file: .env
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "5050:80"
     volumes:
       - ./pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
