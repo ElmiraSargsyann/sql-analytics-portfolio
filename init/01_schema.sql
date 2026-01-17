@@ -6,7 +6,7 @@
 -- DROP TABLE IF EXISTS products CASCADE;
 -- DROP TABLE IF EXISTS customers CASCADE;
 -- DROP TABLE IF EXISTS employees CASCADE;
-
+x
 CREATE TABLE IF NOT EXISTS employees (
   employee_id   SERIAL PRIMARY KEY,
   first_name    TEXT,
