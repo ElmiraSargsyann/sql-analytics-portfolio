@@ -160,5 +160,3 @@ In a production environment, priority is given to indexes on columns that are mo
 
 3.What signals tell you a query needs optimization?
 It takes a very long time to execute.
-
-
