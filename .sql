@@ -1,6 +1,6 @@
-Session 2
+-- Session 2
+-- Task 1 
 
-Task 1 
 -- Employees emails must be unique
 ALTER TABLE employees
 ADD CONSTRAINT uq_employees_email UNIQUE (email);
@@ -17,7 +17,7 @@ ADD CONSTRAINT chk_products_price CHECK (price >= 0);
 ALTER TABLE sales
 ADD CONSTRAINT chk_sales_total CHECK (total_sales >= 0);
 
-Task 2
+-- Task 2
 -- Add a new column to the sales table
 ALTER TABLE sales
 ADD COLUMN sales_channel TEXT;
@@ -32,7 +32,7 @@ UPDATE sales
 SET sales_channel = 'online'
 WHERE transaction_id % 2 = 0;
 
-Task 3
+-- Task 3
 Add Indexes for Query Performance
 -- Indexes improves performance
 
@@ -45,8 +45,8 @@ ON sales (customer_id);
 CREATE INDEX idx_products_category
 ON products (category);
 
-Task 4
-Validate Index Usage with EXPLAIN
+-- Task 4
+-- Validate Index Usage with EXPLAIN
 
 EXPLAIN
 SELECT
@@ -61,8 +61,8 @@ Query plan:
 "  ->  Seq Scan on sales  (cost=0.00..118.00 rows=5000 width=10)"
 -- Seq Scan - последовательное сканирование таблицы
 
-Task 5
-Reduce Query Cost by Refining SELECT
+-- Task 5
+-- Reduce Query Cost by Refining SELECT
 
 SELECT *
 FROM sales;
@@ -83,8 +83,8 @@ instead of all columns (SELECT *). Reading fewer columns means less data is proc
 2.when SELECT * might still be acceptable?
 SELECT * might still be acceptable when using LIMIT, because only a small number of rows are retrieved, so the performance impact is minimal.
 
-Task 6
-ORDER BY and LIMIT for Business Questions
+-- Task 6
+-- ORDER BY and LIMIT for Business Questions
 -- Marketing wants to identify the top 5 products by total revenue.
 
 SELECT
@@ -105,8 +105,8 @@ LIMIT 5;
 sorting cost 146.16 - 145.91 = 0.25
 whether indexes help in this case - ?
 
-Task 7
-Retrieve unique combinations of category and price using DISTINCT and GROUP BY.
+-- Task 7
+-- Retrieve unique combinations of category and price using DISTINCT and GROUP BY.
 
 -- Using DISTINCT
 EXPLAIN
@@ -136,7 +136,7 @@ Query plan
 -- they are the same
 -- "Essentially, the task is the same: to find the unique combinations of (category, price)."
 
-Task 8 | Constraint Enforcement Test
+-- Task 8 | Constraint Enforcement Test
 
 UPDATE products
 SET price = -5
@@ -149,7 +149,7 @@ VALUES (999, 'anna@example.com', '091000999');
 -- It protects data quality because primary keys ensure each record is unique.
 -- If keys could repeat, the table could have duplicate rows, making the database incorrect and unreliable.
 
-Task 9 | Reflection
+-- Task 9 | Reflection
 1.Which constraints provide the highest business value?
 NOT NULL — helps prevent loss of important customer information (e.g., phone number or email).
 PRIMARY KEY — prevents duplicate orders and customers, protecting data and saving money.
@@ -162,9 +162,8 @@ In a production environment, priority is given to indexes on columns that are mo
 It takes a very long time to execute.
 
 
-Session 4
-
-Task 1 | Complex Transaction Segmentation (CASE + WHERE)
+-- Session 4
+-- Task 1 | Complex Transaction Segmentation (CASE + WHERE)
 
 SELECT
 	transaction_id,
@@ -189,3 +188,20 @@ SELECT
 	END AS business_segment
 FROM sales_analysis
 WHERE year = 2023;
+
+-- Task 2 | Category-Level Performance Analysis (CASE + GROUP BY + HAVING)
+SELECT
+	category,
+	SUM(total_sales) AS total_revenue,
+	COUNT(transaction_id) AS transaction_count,
+	AVG(discount) AS avg_discount,
+	CASE
+		WHEN COUNT(transaction_id) > 300 THEN 'Strong Performer'
+		WHEN COUNT(transaction_id) BETWEEN 250 AND 300 THEN 'Average Performer'
+		ELSE 'Underperformer'
+	END AS performance_label
+FROM sales_analysis
+WHERE year = 2023
+GROUP by category
+HAVING COUNT(transaction_id) > 100
+ORDER BY total_revenue DESC;
